@@ -7,9 +7,16 @@ let package = Package(
     products: [
         .executable(name: "Basil", targets: ["Basil"])
     ],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.8.2"),
+    ],
     targets: [
         .executableTarget(
-            name: "Basil"
+            name: "Basil",
+            dependencies: [
+                .product(name: "ArgumentParser",
+                         package: "swift-argument-parser"),
+            ]
         )
     ]
 )
