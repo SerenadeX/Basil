@@ -34,8 +34,7 @@ struct APICommand: AsyncParsableCommand {
     }
     
     var endpointIsValid: Bool {
-        endpoint.contains { !$0.isWhitespace } &&
-        !endpoint.isEmpty
+        endpoint.contains { !$0.isWhitespace }
     }
     
 }
