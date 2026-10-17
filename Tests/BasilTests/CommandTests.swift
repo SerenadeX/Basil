@@ -2,15 +2,16 @@ import Testing
 @testable import Basil
 
 struct CommandTests {
-    @Test("API values parse without running the command", arguments: [false, true])
+    @Test("API values parse without running the command",
+          arguments: [false, true])
     func parsedValues(explicitOptions: Bool) throws {
         var arguments = ["repos/SerenadeX/Basil"]
         if explicitOptions {
-            arguments += ["--method", "POST", "--host", "github"]
+            arguments += ["--method", "GET", "--host", "github"]
         }
         let command = try APICommand.parse(arguments)
         #expect(command.endpoint == "repos/SerenadeX/Basil")
-        #expect(command.method == (explicitOptions ? .post : .get))
+        #expect(command.method == .get)
         #expect(command.host == (explicitOptions ? "github" : nil))
     }
 
@@ -39,25 +40,31 @@ struct CommandTests {
         #expect(result.output == BuildInfo.version + "\n")
     }
 
-    @Test("Method and host appear in output", arguments: HTTPMethod.allCases)
-    func methodAndHost(method: HTTPMethod) throws {
+    @Test("Every known method has a parseable raw value",
+          arguments: HTTPMethod.allCases)
+    func knownMethods(method: HTTPMethod) {
+        #expect(HTTPMethod(argument: method.rawValue) == method)
+    }
+
+    @Test("Non-GET execution is rejected",
+          arguments: HTTPMethod.allCases.filter { $0 != .get })
+    func unsupportedMethod(method: HTTPMethod) throws {
         let result = try runBasil([
             "api", "repos/SerenadeX/Basil", "--method", method.rawValue,
             "--host", "github"
         ])
-        #expect(result.status == 0)
-        #expect(result.error.isEmpty)
-        #expect(result.output.contains("The method is \(method) and the host is github"))
-        #expect(result.output.contains("The endpoint is repos/SerenadeX/Basil"))
+        #expect(result.status != 0)
+        #expect(result.output.isEmpty)
+        #expect(result.error.contains("Only GET is supported right now."))
+        #expect(result.error.contains("Usage:"))
     }
 
     @Test("Omitted options use GET and no host")
     func defaultOptions() throws {
-        let result = try runBasil(["api", "user"])
-        #expect(result.status == 0)
-        #expect(result.error.isEmpty)
-        #expect(result.output.contains("The method is get and the host is no host"))
-        #expect(result.output.contains("The endpoint is user"))
+        let command = try APICommand.parse(["user"])
+        #expect(command.method == .get)
+        #expect(command.host == nil)
+        #expect(command.endpoint == "user")
     }
 
     @Test("Missing endpoint is rejected")
@@ -68,16 +75,20 @@ struct CommandTests {
         #expect(result.error.contains("Missing expected argument '<endpoint>'"))
     }
 
-    @Test("Blank endpoints are rejected", arguments: ["", "   ", "\t", "\n", " \t\n"])
+    @Test("Blank endpoints are rejected",
+          arguments: ["", "   ", "\t", "\n", " \t\n"])
     func blankEndpoint(endpoint: String) throws {
         let result = try runBasil(["api", endpoint])
         #expect(result.status != 0)
         #expect(result.output.isEmpty)
-        #expect(result.error.contains("Endpoint must have a non-empty, non-whitespace value"))
+        #expect(result.error.contains(
+            "Endpoint must have a non-empty, non-whitespace value"
+        ))
         #expect(result.error.contains("Usage:"))
     }
 
-    @Test("Invalid and lowercase methods list valid choices", arguments: ["INVALID", "get", "", "123"])
+    @Test("Invalid and lowercase methods list valid choices",
+          arguments: ["INVALID", "get", "", "123"])
     func invalidMethod(method: String) throws {
         let result = try runBasil(["api", "user", "--method", method])
         #expect(result.status != 0)
@@ -93,7 +104,8 @@ struct CommandTests {
         ["api", "user", "--unknown"],
         ["api", "user", "--method"],
         ["api", "user", "--host"],
-        ["api", "user", "extra-endpoint"]
+        ["api", "user", "extra-endpoint"],
+        ["api", "user", "--host", "lyoko"]
     ])
     func malformedArguments(arguments: [String]) throws {
         let result = try runBasil(arguments)
@@ -101,5 +113,10 @@ struct CommandTests {
         #expect(result.output.isEmpty)
         #expect(result.error.contains("Error:"))
         #expect(result.error.contains("Usage:"))
+        if arguments.last == "lyoko" {
+            #expect(result.error.contains(
+                "Only the github host is currently supported"
+            ))
+        }
     }
 }

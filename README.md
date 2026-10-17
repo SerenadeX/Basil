@@ -28,6 +28,14 @@ swift run Basil api repos/SerenadeX/Basil --method GET --host github
 `Basil` is the current SwiftPM executable product name. Generated help uses the
 command name `basil`.
 
+Basil targets GitHub's REST API version `2026-03-10` using the
+`X-GitHub-Api-Version` request header. This is separate from Basil's own
+application version. See [GitHub API versioning][github-api-versions] for the
+supported versions and compatibility policy.
+
+[github-api-versions]:
+  https://docs.github.com/en/rest/about-the-rest-api/api-versions
+
 The endpoint is required and positional. `--method` defaults to `GET`; accepted
 values are `GET`, `HEAD`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS`, `CONNECT`,
 and `TRACE`. Methods are case-sensitive. `--host` is optional and currently only
