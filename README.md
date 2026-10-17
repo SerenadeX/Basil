@@ -8,7 +8,7 @@ selected inputs; it does not make HTTP requests or authenticate yet.
 
 ## Requirements
 
-- Swift 6.0 or later. Development and tests have been verified on macOS with Swift 6.4.
+- Swift 6.0 or later. Development and tests have been verified on macOS with Swift 6.4 and Xcode 27.1.
 - Xcode with a compatible Swift toolchain for the Xcode workflow below.
 
 The first build resolves Swift Argument Parser and requires internet access.

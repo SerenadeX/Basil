@@ -23,7 +23,4 @@ struct BasilCommand: AsyncParsableCommand {
     }
     
     
-    mutating func run() async throws {
-        
-    }
 }
