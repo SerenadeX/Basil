@@ -13,13 +13,15 @@ struct BasilCommand: AsyncParsableCommand {
     static let configuration: CommandConfiguration
     = .init(commandName: "basil",
             abstract: abstract,
-            version: BuildInfo.version)
+            version: BuildInfo.version,
+            subcommands: [APICommand.self])
     
     static var abstract: String {
         """
         Basil is a tool to help with managing GitHub and Gitea Issues, Pull Requests, and other features of the services' API
         """
     }
+    
     
     mutating func run() async throws {
         
