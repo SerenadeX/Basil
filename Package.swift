@@ -11,7 +11,8 @@ let package = Package(
         .executable(name: "Basil", targets: ["Basil"])
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.8.2"),
+        .package(url: "https://github.com/apple/swift-argument-parser",
+                 from: "1.8.2"),
     ],
     targets: [
         .executableTarget(

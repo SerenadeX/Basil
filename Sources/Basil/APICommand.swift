@@ -6,6 +6,7 @@
 //
 
 import ArgumentParser
+import Foundation
 
 struct APICommand: AsyncParsableCommand {
     
@@ -23,14 +24,27 @@ struct APICommand: AsyncParsableCommand {
     var endpoint: String
     
     mutating func run() async throws {
-        
-        print("The method is \(method) and the host is \(host ?? "no host")")
-        print("The endpoint is \(endpoint)")
+        let api = GitHubAPI()
+        let request = try api
+            .request(endpoint: endpoint,
+                     method: method)
+        let responseString = try await HTTPClient()
+            .perform(request: request)
+        print(responseString)
     }
     
     func validate() throws {
         guard endpointIsValid
         else { throw ValidationError("Endpoint must have a non-empty, non-whitespace value") }
+        guard method == .get else {
+            throw ValidationError("Only GET is supported right now.")
+        }
+        guard host == "github" || host == nil else {
+            throw ValidationError(
+                "Only the github host is currently supported; " +
+                "omit --host or use --host github."
+            )
+        }
     }
     
     var endpointIsValid: Bool {
