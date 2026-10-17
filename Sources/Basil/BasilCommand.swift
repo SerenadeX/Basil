@@ -12,7 +12,8 @@ struct BasilCommand: AsyncParsableCommand {
     
     static let configuration: CommandConfiguration
     = .init(commandName: "basil",
-            abstract: abstract)
+            abstract: abstract,
+            version: BuildInfo.version)
     
     static var abstract: String {
         """
